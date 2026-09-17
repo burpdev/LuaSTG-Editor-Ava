@@ -1,0 +1,280 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:LuaSTGEditorAva.Converters"
+        x:Class="LuaSTGEditorAva.MainWindow"
+        Title="LuaSTG Editor Ava"
+        Width="1280" Height="760"
+        MinWidth="900" MinHeight="550">
+  <Window.Resources>
+    <conv:PackUriToBitmapConverter x:Key="IconConverter" />
+    <conv:TreeNodeToBitmapConverter x:Key="NodeIconConverter" />
+  </Window.Resources>
+
+  <DockPanel>
+
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem Name="NewMenu" Header="_New" InputGesture="Ctrl+N" />
+        <MenuItem Name="OpenMenu" Header="_Open..." InputGesture="Ctrl+O" />
+        <MenuItem Name="RecentMenu" Header="_Open Recent" />
+        <Separator />
+        <MenuItem Name="SaveMenu" Header="_Save" InputGesture="Ctrl+S" />
+        <MenuItem Name="SaveAsMenu" Header="Save _As..." />
+        <MenuItem Name="SaveLuaMenu" Header="Save _Lua As..." />
+        <Separator />
+        <MenuItem Name="CloseMenu" Header="_Close" />
+        <Separator />
+        <MenuItem Name="ExitMenu" Header="E_xit" />
+      </MenuItem>
+      <MenuItem Header="_Edit">
+        <MenuItem Name="EditNodeMenu" Header="_Edit..." />
+        <MenuItem Name="UndoMenu" Header="_Undo" InputGesture="Ctrl+Z" />
+        <MenuItem Name="RedoMenu" Header="_Redo" InputGesture="Ctrl+Y" />
+        <Separator />
+        <MenuItem Name="CutMenu" Header="_Cut" InputGesture="Ctrl+X" />
+        <MenuItem Name="CopyMenu" Header="_Copy" InputGesture="Ctrl+C" />
+        <MenuItem Name="PasteMenu" Header="_Paste" InputGesture="Ctrl+V" />
+        <MenuItem Name="DeleteMenu" Header="_Delete" InputGesture="Delete" />
+        <Separator />
+        <MenuItem Name="BanMenu" Header="_Switch Ban" />
+        <MenuItem Name="FoldMenu" Header="_Fold Tree" />
+        <MenuItem Name="UnfoldMenu" Header="_Unfold Tree" />
+        <MenuItem Name="FoldRegionMenu" Header="_Fold region" />
+        <MenuItem Name="UnfoldRegionMenu" Header="_Unfold as region" />
+        <Separator />
+        <MenuItem Name="GoToDefMenu" Header="_Go to Definition" />
+      </MenuItem>
+      <MenuItem Header="_Tools">
+        <MenuItem Name="FixAttrsMenu" Header="_Fix node attributes" />
+        <Separator />
+        <MenuItem Name="LibraryToolsMenu" Header="_Library tools..." />
+
+        <MenuItem Name="CustomNodesMenu" Header="_Custom Nodes..." />
+      </MenuItem>
+      <MenuItem Header="_Insert">
+        <MenuItem Name="InsBeforeMenu" Header="_Before" />
+        <MenuItem Name="InsAfterMenu" Header="_After" />
+        <MenuItem Name="InsChildMenu" Header="_Child" />
+        <MenuItem Name="InsParentMenu" Header="_Parent" />
+      </MenuItem>
+      <MenuItem Header="_Preset">
+        <MenuItem Name="PresetsMenu" Header="_Presets..." />
+        <MenuItem Name="SavePresetMenu" Header="_Save preset..." />
+        <MenuItem Name="RefreshPresetMenu" Header="_Refresh preset list" />
+      </MenuItem>
+      <MenuItem Header="_Compile">
+        <MenuItem Name="RunMenu" Header="_Run" />
+        <MenuItem Name="ScDebugMenu" Header="_Test spell card" />
+        <MenuItem Name="StageDebugMenu" Header="_Test from scene node" />
+        <MenuItem Name="PackMenu" Header="_Pack project" />
+      </MenuItem>
+      <MenuItem Header="_View">
+        <MenuItem Name="FileFolderMenu" Header="_File Folder" />
+        <MenuItem Name="ModFolderMenu" Header="_Mod Folder" />
+        <MenuItem Name="ViewCodeMenu" Header="_View selected code" />
+        <MenuItem Name="ExportCodeMenu" Header="_Export all code" />
+        <MenuItem Name="DefinitionsMenu" Header="_Definitions" />
+      </MenuItem>
+      <MenuItem Header="_Settings">
+        <MenuItem Name="GeneralSettingsMenu" Header="_General settings" />
+        <MenuItem Name="CompilerSettingsMenu" Header="_Compiler settings" />
+        <MenuItem Name="DebugSettingsMenu" Header="_Debug settings" />
+        <MenuItem Name="EditorSettingsMenu" Header="_Editor settings" />
+      </MenuItem>
+      <MenuItem Header="_Help">
+        <MenuItem Name="AboutMenu" Header="_About" />
+      </MenuItem>
+    </Menu>
+
+    <StackPanel Name="ToolbarStrip" DockPanel.Dock="Top" Orientation="Horizontal"
+                Spacing="2" Margin="4,2" />
+
+    <TextBlock DockPanel.Dock="Bottom" Name="StatusBar" Margin="8,4"
+               Text="No document open." />
+
+    <StackPanel DockPanel.Dock="Top" Margin="4,0,4,2">
+      <ScrollViewer Name="ToolboxTabScroller"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <StackPanel Name="ToolboxTabStrip" Orientation="Horizontal" Spacing="1" />
+      </ScrollViewer>
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                    MaxHeight="44" Margin="0,2,0,0">
+        <StackPanel Name="ToolboxIconStrip" Orientation="Horizontal" Spacing="2" />
+      </ScrollViewer>
+    </StackPanel>
+
+    <Grid ColumnDefinitions="300,4,*">
+
+      <TabControl Grid.Column="0" Margin="4,4,0,4">
+        <TabItem Header="Properties">
+          <ListBox Name="AttrList" DoubleTapped="AttrList_DoubleTapped"
+                   ToolTip.Tip="Double-click a row to open its specialized editor">
+            <ListBox.Styles>
+              <Style Selector="ListBox.compact ListBoxItem">
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="Padding" Value="4,1" />
+                <Setter Property="FontSize" Value="12" />
+              </Style>
+              <Style Selector="ListBox.compact ComboBox">
+                <Setter Property="MinHeight" Value="22" />
+                <Setter Property="Padding" Value="4,1" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+              </Style>
+              <Style Selector="ListBox.compact ComboBox /template/ TextBox#PART_EditableTextBox">
+                <Setter Property="MinHeight" Value="0" />
+                <Setter Property="Padding" Value="4,0" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+              </Style>
+              <Style Selector="ListBox.compact Button">
+                <Setter Property="MinHeight" Value="22" />
+                <Setter Property="Padding" Value="2,0" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+              </Style>
+            </ListBox.Styles>
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Grid ColumnDefinitions="120,*,28">
+                  <TextBlock Grid.Column="0" Text="{Binding AttrCap}"
+                             VerticalAlignment="Center" Margin="0,0,8,0"
+                             TextWrapping="Wrap" />
+                  <ComboBox Grid.Column="1"
+                            IsEditable="True"
+                            IsTextSearchEnabled="False"
+                            Text="{Binding AttrInput, Mode=OneWay}"
+                            Loaded="AttrCombo_Loaded"
+                            SelectionChanged="AttrCombo_SelectionChanged"
+                            LostFocus="AttrBox_LostFocus"
+                            KeyDown="AttrBox_KeyDown" />
+                  <Button Grid.Column="2" Content="..." Click="AttrEditButton_Click"
+                          Padding="2" Margin="4,0,0,0"
+                          ToolTip.Tip="Open specialized editor" />
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </TabItem>
+      </TabControl>
+
+      <GridSplitter Grid.Column="1" ResizeDirection="Columns" Background="Transparent" />
+
+      <Border Name="VerticalGrip" Grid.Column="1" Margin="1,6" Background="Gray" Opacity="0.5"
+              CornerRadius="1" IsHitTestVisible="False" />
+
+      <DockPanel Grid.Column="2" Margin="0,4,4,4">
+        <Grid DockPanel.Dock="Top" ColumnDefinitions="*,220" Margin="12,0,0,4">
+          <ListBox Grid.Column="0" Name="DocStrip" MaxHeight="30" Margin="0,0,4,0">
+            <ListBox.Styles>
+              <Style Selector="ListBoxItem">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0,0,2,0" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+              </Style>
+            </ListBox.Styles>
+            <ListBox.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <Border BorderBrush="Gray" BorderThickness="1,1,1,0"
+                        CornerRadius="4,4,0,0" Padding="8,3">
+                  <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Document.DocName}" FontSize="12"
+                               VerticalAlignment="Center" />
+                    <Button Content="&#215;" FontSize="11" Padding="4,0" Margin="6,0,0,0"
+                            VerticalAlignment="Center" Click="DocTabClose_Click"
+                            ToolTip.Tip="Close document" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+          <TextBox Grid.Column="1" Name="SearchBox" Watermark="Search nodes..."
+                   VerticalAlignment="Center" />
+        </Grid>
+        <ListBox DockPanel.Dock="Top" Name="SearchResults" MaxHeight="110" Margin="0,0,0,4"
+                 IsVisible="False" DoubleTapped="SearchResult_DoubleTapped">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding}" FontSize="12" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" MinHeight="80" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="160" MinHeight="60" />
+          </Grid.RowDefinitions>
+          <GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="7"
+                        HorizontalAlignment="Stretch" Background="Transparent" />
+          <Border Grid.Row="1" Height="1.5" Margin="8,0,2,0" VerticalAlignment="Center"
+                  Background="Gray" Opacity="0.4" CornerRadius="0.75"
+                  IsHitTestVisible="False" />
+        <TreeView Grid.Row="0" Name="DocTree" BorderThickness="0" Margin="12,0,0,12">
+          <TreeView.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Edit..." Click="EditNode_Click" />
+              <Separator />
+              <MenuItem Header="Cut" Click="Cut_Click" />
+              <MenuItem Header="Copy" Click="Copy_Click" />
+              <MenuItem Header="Paste" Click="Paste_Click" />
+              <MenuItem Header="Delete" Click="Delete_Click" />
+              <Separator />
+              <MenuItem Header="Switch Ban" Click="Ban_Click" />
+              <MenuItem Header="Fold Tree" Click="Fold_Click" />
+              <MenuItem Header="Unfold Tree" Click="Unfold_Click" />
+              <MenuItem Header="Go to Definition" Click="GoToDef_Click" />
+              <Separator />
+              <MenuItem Header="View Code" Click="ViewCode_Click" />
+              <MenuItem Header="Save Preset..." Click="SavePreset_Click" />
+            </ContextMenu>
+          </TreeView.ContextMenu>
+          <TreeView.Styles>
+            <Style Selector="TreeViewItem">
+              <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+              <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+            </Style>
+            <Style Selector="TreeView.compact TreeViewItem">
+              <Setter Property="MinHeight" Value="20" />
+              <Setter Property="Padding" Value="4,0" />
+              <Setter Property="FontSize" Value="12" />
+            </Style>
+          </TreeView.Styles>
+          <TreeView.ItemTemplate>
+            <TreeDataTemplate ItemsSource="{Binding Children}">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <Image Source="{Binding ., Converter={StaticResource NodeIconConverter}}"
+                       Width="16" Height="16" />
+                <TextBlock Text="{Binding ScreenString}" />
+              </StackPanel>
+            </TreeDataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+          <TabControl Grid.Row="2" Name="BottomTabs" Margin="0,0,0,0" BorderThickness="0">
+          <TabItem Header="Messages">
+            <ListBox Name="MessageList" DoubleTapped="Message_DoubleTapped" BorderThickness="0">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </TabItem>
+          <TabItem Header="Lua preview">
+            <TextBox Name="LuaPreview" AcceptsReturn="True" IsReadOnly="True"
+                     FontFamily="DejaVu Sans Mono,Consolas,monospace" />
+          </TabItem>
+          <TabItem Header="Debug Log">
+            <TextBox Name="DebugLog" AcceptsReturn="True" IsReadOnly="True"
+                     FontFamily="DejaVu Sans Mono,Consolas,monospace" />
+          </TabItem>
+        </TabControl>
+        </Grid>
+      </DockPanel>
+    </Grid>
+  </DockPanel>
+</Window>

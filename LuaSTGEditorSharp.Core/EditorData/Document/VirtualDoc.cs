@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LuaSTGEditorSharp.EditorData.Interfaces;
+using LuaSTGEditorSharp.Services;
 
 namespace LuaSTGEditorSharp.EditorData.Document
 {
@@ -24,7 +25,7 @@ namespace LuaSTGEditorSharp.EditorData.Document
             }
             catch (System.Exception e)
             {
-                System.Windows.MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
         }
 

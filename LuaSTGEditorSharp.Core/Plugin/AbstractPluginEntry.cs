@@ -8,7 +8,6 @@ using LuaSTGEditorSharp.EditorData.Interfaces;
 using LuaSTGEditorSharp.EditorData.Document;
 using LuaSTGEditorSharp.EditorData.Node;
 using LuaSTGEditorSharp.Execution;
-using System.Windows.Media.Imaging;
 using LuaSTGEditorSharp.Windows;
 
 namespace LuaSTGEditorSharp.Plugin
@@ -108,15 +107,6 @@ namespace LuaSTGEditorSharp.Plugin
                 }
             }
             return false;
-        }
-
-        public IEnumerable<KeyValuePair<string, BitmapImage>> GetNodeImageResources()
-        {
-            foreach (KeyValuePair<Type, TypeCacheData> kvp in NodeTypeCache.NodeTypeInfo)
-            {
-                string s = kvp.Value.icon;
-                yield return new KeyValuePair<string, BitmapImage>(s, new BitmapImage(new Uri(s, UriKind.RelativeOrAbsolute)));
-            }
         }
     }
 }

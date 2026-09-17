@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LuaSTGEditorSharp.EditorData.Document;
 using LuaSTGEditorSharp.Plugin;
+using LuaSTGEditorSharp.Services;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -155,6 +156,7 @@ namespace LuaSTGEditorSharp.EditorData
         /// </summary>
         public void Undo()
         {
+            if (commandFlow.Count == 0) return;
             commandFlow.Peek().Undo();
             undoFlow.Push(commandFlow.Pop());
             RaisePropertyChanged("DocName");
@@ -166,6 +168,7 @@ namespace LuaSTGEditorSharp.EditorData
         /// </summary>
         public void Redo()
         {
+            if (undoFlow.Count == 0) return;
             undoFlow.Peek().Execute();
             commandFlow.Push(undoFlow.Pop());
             RaisePropertyChanged("DocName");
@@ -255,21 +258,13 @@ namespace LuaSTGEditorSharp.EditorData
             string path = "";
             if (string.IsNullOrEmpty(DocPath) || saveAs)
             {
-                var saveFileDialog = new System.Windows.Forms.SaveFileDialog()
-                {
-                    InitialDirectory = appSettings.SLDir,
-                    Filter = ExtensionInfo,
-                    FileName = saveAs ? "" : RawDocName
-                };
-                do
-                {
-                    if (saveFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.Cancel) return false;
-                }
-                while (string.IsNullOrEmpty(saveFileDialog.FileName));
-                path = saveFileDialog.FileName;
+                string selected = EditorAppContext.FileDialogs.ShowSaveFileDialog(
+                    appSettings.SLDir, ExtensionInfo, saveAs ? "" : RawDocName);
+                if (string.IsNullOrEmpty(selected)) return false;
+                path = selected;
                 appSettings.SLDir = Path.GetDirectoryName(path);
                 DocPath = path;
-                DocName = path.Substring(path.LastIndexOf("\\") + 1);
+                DocName = Path.GetFileName(path);
             }
             else path = DocPath;
             PushSavedCommand();
@@ -284,8 +279,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception ex)
             {
                 Logger.Error($"Unable to write to file \"{path}\". Reason:\n{ex}");
-                System.Windows.MessageBox.Show("Unable to write to file \"" + path + "\".", "LuaSTG Editor Sharp X"
-                    , System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                EditorAppContext.Dialogs.ShowError("Unable to write to file \"" + path + "\".");
                 return false;
             }
             finally
@@ -354,7 +348,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Couldn't create node from file. Reason:\n{e}");
-                System.Windows.MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
             finally
             {
@@ -420,7 +414,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Couldn't create node from file. Reason:\n{e}");
-                System.Windows.MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
             return root;
         }
@@ -481,7 +475,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Couldn't save code.", e);
-                System.Windows.MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
         }
 
@@ -503,7 +497,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Couldn't save SCDebug code. Reason:\n{e}");
-                System.Windows.MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
         }
 
@@ -531,7 +525,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Couldn't save Stage Debug code. Reason:\n{e}");
-                System.Windows.MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
         }
 

@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
-using System.Windows;
+using System.Runtime.InteropServices;
+using LuaSTGEditorSharp.Services;
 using Serilog;
 
 namespace LuaSTGEditorSharp.Execution
@@ -28,9 +29,9 @@ namespace LuaSTGEditorSharp.Execution
 
         protected bool RedirectStandardOutput { get; set; }
 
-        protected virtual string WorkingDirectory { get => Path.GetDirectoryName((Application.Current as IAppSettings)?.LuaSTGExecutablePath); }
+        protected virtual string WorkingDirectory { get => Path.GetDirectoryName(EditorAppContext.CurrentSettings?.LuaSTGExecutablePath); }
 
-        protected virtual string LuaSTGPath { get => (Application.Current as IAppSettings)?.LuaSTGExecutablePath; }
+        protected virtual string LuaSTGPath { get => EditorAppContext.CurrentSettings?.LuaSTGExecutablePath; }
 
         protected abstract string LogFileName { get; }
 
@@ -53,9 +54,19 @@ namespace LuaSTGEditorSharp.Execution
                 };
                 LSTGInstance.EnableRaisingEvents = true;
                 LSTGInstance.Start();
-                DebugView debugView = new DebugView(logger, LSTGInstance.Id);
+                DebugView debugView = null;
+                bool useDebugView = RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    && string.Equals(Environment.GetEnvironmentVariable("LSTGX_DISABLE_DEBUGVIEW"), "1") != true;
+                if (useDebugView)
+                {
+                    try { debugView = new DebugView(logger, LSTGInstance.Id); }
+                    catch { debugView = null; useDebugView = false; }
+                }
 #if !DEBUG
-                if((Application.Current as IAppDebugSettings).DynamicDebugReporting) debugView.Start();
+                if(useDebugView && (EditorAppContext.CurrentDebugSettings?.DynamicDebugReporting ?? false))
+                {
+                    try { debugView.Start(); } catch { }
+                }
 #endif
                 logger("LuaSTG is Running.\n\n");
                 Logger.Information($"LuaSTG is Running.");
@@ -80,12 +91,12 @@ namespace LuaSTGEditorSharp.Execution
                     catch (Exception exc)
                     {
                         Logger.Error($"LuaSTG instance had an error. Reason:\n{exc}");
-                        MessageBox.Show(exc.ToString());
+                        EditorAppContext.Dialogs.ShowError(exc.ToString());
                     }
                     finally
                     {
 #if !DEBUG
-                        if ((Application.Current as IAppDebugSettings).DynamicDebugReporting) debugView.Dispose();
+                        if (useDebugView && (EditorAppContext.CurrentDebugSettings?.DynamicDebugReporting ?? false)) debugView?.Dispose();
 #endif
                     }
                     sb.Append("\nExited with code " + LSTGInstance.ExitCode + ".");
@@ -96,8 +107,7 @@ namespace LuaSTGEditorSharp.Execution
             else
             {
                 Logger.Warning("LuaSTG is already running, aborting LuaSTGExecution process.");
-                MessageBox.Show("LuaSTG is already running, please exit first."
-                    , "LuaSTG Editor Sharp X", MessageBoxButton.OK, MessageBoxImage.Error);
+                EditorAppContext.Dialogs.ShowError("LuaSTG is already running, please exit first.");
             }
         }
     }

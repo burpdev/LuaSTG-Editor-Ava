@@ -39,8 +39,23 @@ namespace LuaSTGEditorSharp.Util
                 if (!File.Exists(filePath))
                     throw new FileNotFoundException("Specified file doesn't exist.", filePath);
 
+                // MOTW (Zone.Identifier ADS) is Windows/NTFS-only. No-op on Linux/macOS.
+                if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    return false;
+
                 string zoneId = $"{filePath}:Zone.Identifier";
-                return DeleteFile(zoneId);
+                try
+                {
+                    return DeleteFile(zoneId);
+                }
+                catch (DllNotFoundException)
+                {
+                    return false;
+                }
+                catch (EntryPointNotFoundException)
+                {
+                    return false;
+                }
             }
         }
     }

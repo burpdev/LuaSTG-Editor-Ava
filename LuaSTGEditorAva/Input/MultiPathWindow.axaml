@@ -1,0 +1,21 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LuaSTGEditorAva.Input.MultiPathWindow"
+        Title="Choose files"
+        Width="560" Height="380"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True">
+  <DockPanel Margin="12">
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8"
+                HorizontalAlignment="Right" Margin="0,8,0,0">
+      <Button Name="AddBtn" Content="Add files..." MinWidth="90" />
+      <Button Name="ClearBtn" Content="Clear" MinWidth="90" />
+      <Button Name="OkBtn" Content="OK" MinWidth="90" />
+      <Button Name="CancelBtn" Content="Cancel" MinWidth="90" />
+    </StackPanel>
+    <TextBlock DockPanel.Dock="Bottom" Margin="0,8,0,0" Name="HintText"
+               Text="Paths are joined with |. Select rows and press Delete to remove."
+               Opacity="0.6" />
+    <ListBox Name="FileList" />
+  </DockPanel>
+</Window>

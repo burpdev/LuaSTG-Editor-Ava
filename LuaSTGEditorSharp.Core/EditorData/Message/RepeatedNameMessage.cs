@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using LuaSTGEditorSharp.Services;
 using LuaSTGEditorSharp.EditorData.Interfaces;
 using LuaSTGEditorSharp.EditorData.Document;
 
@@ -35,9 +35,13 @@ namespace LuaSTGEditorSharp.EditorData.Message
 
         public override void Invoke()
         {
-            (Application.Current.MainWindow as IMainWindow).Reveal(
+            TreeNode target =
                 ((Source as MetaDataEntity).aggregatableMetas[RepeatedGroup]
-                .FindOfName(RepeatedName) as MetaInfo)?.target);
+                .FindOfName(RepeatedName) as MetaInfo)?.target;
+            if (EditorAppContext.MessageNavigator != null)
+                EditorAppContext.MessageNavigator.Reveal(target);
+            else
+                EditorAppContext.MainWindow?.Reveal(target);
         }
     }
 }

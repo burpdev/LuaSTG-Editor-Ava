@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using LuaSTGEditorSharp.Services;
 
 namespace LuaSTGEditorSharp.Lua
 {
@@ -17,9 +17,10 @@ namespace LuaSTGEditorSharp.Lua
             {
                 if (_current == null)
                 {
-                    if ((Application.Current as IAppSettings).SpaceIndentation)
+                    var settings = EditorAppContext.CurrentSettings;
+                    if (settings != null && settings.SpaceIndentation)
                     {
-                        _current = new SpaceIndentation() { NumOfSpaces = (Application.Current as IAppSettings).IndentationSpaceLength };
+                        _current = new SpaceIndentation() { NumOfSpaces = settings.IndentationSpaceLength };
                     }
                     else
                     {

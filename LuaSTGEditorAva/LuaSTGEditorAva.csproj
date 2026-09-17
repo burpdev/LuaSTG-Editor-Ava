@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>LuaSTGEditorAva</AssemblyName>
+    <RootNamespace>LuaSTGEditorAva</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <WarningLevel>4</WarningLevel>
+    <PublishTrimmed>true</PublishTrimmed>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+  <ItemGroup>
+    <TrimmerRootAssembly Include="LuaSTGEditorSharp.Core"/>
+    <TrimmerRootAssembly Include="LuaSTGNode.Legacy"/>
+    <TrimmerRootAssembly Include="LstgHeadless"/>
+    <TrimmerRootAssembly Include="DanmakuRandomizer"/>
+    <TrimmerRootAssembly Include="LuaSTGEditorAva"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.22"/>
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.22"/>
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22"/>
+    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.3.0"/>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Assets/*.png"/>
+    <EmbeddedResource Include="Assets/ToolbarIcons/*.png" Link="ToolbarIcons\%(Filename)%(Extension)"/>
+    <EmbeddedResource Include="Assets/Icons/AppIcon.png" Link="AppIcon.png"/>
+    <Content Include="Assets/Templates/*.lstges" Link="Templates\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets/Templates/*.lstgproj" Link="Templates\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets/Templates/*.txt" Link="Templates\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LuaSTGEditorSharp.Core\LuaSTGEditorSharp.Core.csproj"/>
+    <ProjectReference Include="..\LuaSTGNode.Legacy\LuaSTGNode.Legacy.csproj"/>
+    <ProjectReference Include="..\LstgHeadless\LstgHeadless.csproj"/>
+    <ProjectReference Include="..\DanmakuRandomizer\DanmakuRandomizer.csproj"/>
+  </ItemGroup>
+</Project>

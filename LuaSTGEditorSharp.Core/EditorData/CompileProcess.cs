@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 using System.Security.AccessControl;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using System.Windows;
+using LuaSTGEditorSharp.Services;
 using LuaSTGEditorSharp.EditorData.Document;
 using LuaSTGEditorSharp.EditorData.Compile;
 using LuaSTGEditorSharp.EditorData.Exception;
@@ -137,7 +139,7 @@ namespace LuaSTGEditorSharp.EditorData
             try
             {
                 file = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-                var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+                using var md5 = MD5.Create();
                 var bytes = md5.ComputeHash(file);
                 file.Close();
                 var sb = new StringBuilder();
@@ -150,7 +152,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Couldn't get MD5 hash.", e);
-                MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
                 return "";
             }
             finally
@@ -206,7 +208,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception ex)
             {
                 Logger.Error($"Failed to write root file.", ex);
-                MessageBox.Show(ex.ToString());
+                EditorAppContext.Dialogs.ShowError(ex.ToString());
             }
         }
 
@@ -279,7 +281,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Failed to gather RES META.", e);
-                MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
             finally
             {
@@ -331,7 +333,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Failed to gather and save RES META.", e);
-                MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
             finally
             {
@@ -447,7 +449,7 @@ namespace LuaSTGEditorSharp.EditorData
             catch (System.Exception e)
             {
                 Logger.Error($"Pack process failed. Reason:\n{e}");
-                MessageBox.Show("Pack process failed.\n" + e.ToString());
+                EditorAppContext.Dialogs.ShowError("Pack process failed.\n" + e.ToString());
             }
             finally
             {
@@ -540,7 +542,7 @@ namespace LuaSTGEditorSharp.EditorData
             }
             catch (System.Exception e)
             {
-                MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
             finally
             {
@@ -619,7 +621,7 @@ namespace LuaSTGEditorSharp.EditorData
             }
             catch (System.Exception e)
             {
-                MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
             finally
             {
@@ -636,9 +638,14 @@ namespace LuaSTGEditorSharp.EditorData
         /// <returns>Whether it have operation permission</returns>
         public static bool HasOperationPermission(string folder)
         {
+            // Windows ACLs only. On Linux/macOS there is no NTAccount/ACL; fall back to a
+            // trial write via CanOperate callers. Returning false preserves old catch->false path.
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return false;
+
             var currentUserIdentity = Path.Combine(Environment.UserDomainName, Environment.UserName);
 
-            DirectorySecurity fileAcl = Directory.GetAccessControl(folder);
+            DirectorySecurity fileAcl = new DirectoryInfo(folder).GetAccessControl();
             var userAccessRules = fileAcl.GetAccessRules(true, true, typeof(System.Security.Principal.NTAccount)).OfType<FileSystemAccessRule>().Where(i => i.IdentityReference.Value == currentUserIdentity).ToList();
 
             return userAccessRules.Any(i => i.AccessControlType == AccessControlType.Deny);

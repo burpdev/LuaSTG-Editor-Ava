@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using LuaSTGEditorSharp.Services;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -33,14 +34,14 @@ namespace LuaSTGEditorSharp.Zip
             {
                 foreach (KeyValuePair<string, string> kvp in fileInfo)
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(targetArchivePath + "\\" + kvp.Key));
-                    File.Copy(kvp.Value, targetArchivePath + "\\" + kvp.Key, true);
+                    Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(targetArchivePath, kvp.Key)));
+                    File.Copy(kvp.Value, Path.Combine(targetArchivePath, kvp.Key), true);
                 }
             }
             catch (System.Exception e)
             {
                 Logger.Error($"Failed to pack files. Reason:\n{e}");
-                System.Windows.MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
         }
 

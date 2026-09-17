@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LuaSTGEditorSharp.Services;
 using Serilog;
 
 namespace LuaSTGEditorSharp.Zip
@@ -50,7 +51,7 @@ namespace LuaSTGEditorSharp.Zip
             catch (System.Exception e)
             {
                 Logger.Error($"Failed to pack files. Reason:\n{e}");
-                System.Windows.MessageBox.Show(e.ToString());
+                EditorAppContext.Dialogs.ShowError(e.ToString());
             }
         }
 

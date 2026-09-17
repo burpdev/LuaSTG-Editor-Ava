@@ -1,0 +1,92 @@
+name: release-draft
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag for the draft release (blank = current repo version, e.g. 0.78.5)"
+        required: false
+        default: ""
+      title:
+        description: "Release title (defaults to the tag)"
+        required: false
+        default: ""
+      run_id:
+        description: "Override: use artifacts from this build run ID instead of the latest"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Resolve tag
+        id: resolve-tag
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            TAG="${{ inputs.tag }}"
+            echo "Using supplied tag $TAG"
+          else
+            VER=$(sed -n 's/^[[:space:]]*<Version>\([^<]*\)<\/Version>.*/\1/p' Directory.Build.props | head -1)
+            [[ "$VER" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "error: bad <Version> '$VER' in Directory.Build.props" >&2; exit 1; }
+            TAG="$VER"
+            echo "No tag supplied, using repo version $TAG"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: Find source build run
+        id: find-run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ inputs.run_id }}" ]; then
+            RUN_ID="${{ inputs.run_id }}"
+          else
+            RUN_ID=$(gh run list --workflow build.yml --branch main \
+              --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          [ -n "$RUN_ID" ] && [ "$RUN_ID" != "null" ] || {
+            echo "error: no successful build run found on main" >&2;
+            exit 1
+          }
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "Using build run $RUN_ID:"
+          gh run view "$RUN_ID" \
+            --json headSha,headBranch,conclusion,createdAt \
+            --jq '"  sha=\(.headSha) branch=\(.headBranch) conclusion=\(.conclusion) created=\(.createdAt)"'
+
+      - name: Download artifacts from that run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          rm -rf release-files && mkdir -p release-files
+          gh run download "${{ steps.find-run.outputs.run_id }}" --dir release-files
+          echo "Downloaded:"
+          find release-files -type f | sort
+
+      - name: Create draft release (or add to existing tag)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mapfile -t FILES < <(find release-files -type f | sort)
+          [ "${#FILES[@]}" -gt 0 ] || { echo "error: no files downloaded" >&2; exit 1; }
+          TAG="${{ steps.resolve-tag.outputs.tag }}"
+          TITLE="${{ inputs.title }}"
+          [ -n "$TITLE" ] || TITLE="$TAG"
+          if ! gh release view "$TAG" >/dev/null 2>&1 && ! git rev-parse -q --verify "refs/tags/$TAG" >/dev/null && ! git ls-remote --tags origin "refs/tags/$TAG" | grep -q .; then
+            echo "note: tag $TAG does not exist yet -- gh will create it at the current checkout"
+          fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, uploading assets into it"
+            gh release upload "$TAG" --clobber "${FILES[@]}"
+          else
+            gh release create "$TAG" \
+              --draft --title "$TITLE" --generate-notes "${FILES[@]}"
+          fi
+          echo "Done -- check the draft at releases/tag/$TAG"

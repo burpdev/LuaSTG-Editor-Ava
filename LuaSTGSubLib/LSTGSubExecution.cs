@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LuaSTGEditorSharp.Execution;
+using LuaSTGEditorSharp.Services;
 
 namespace LuaSTGEditorSharp
 {
@@ -11,7 +12,7 @@ namespace LuaSTGEditorSharp
     {
         public override void BeforeRun(ExecutionConfig config)
         {
-            IAppDebugSettings currentApp = System.Windows.Application.Current as IAppDebugSettings;
+            IAppDebugSettings currentApp = EditorAppContext.CurrentDebugSettings;
             Parameter = "\""
                 + "start_game=true is_debug=true setting.nosplash=true setting.windowed="
                 + currentApp.DebugWindowed.ToString().ToLower() + " setting.resx=" + currentApp.DebugResolutionX

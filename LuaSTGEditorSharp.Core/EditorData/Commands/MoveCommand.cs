@@ -9,7 +9,7 @@ namespace LuaSTGEditorSharp.EditorData.Commands
     /// <summary>
     /// <see cref="Command"/> that move a <see cref="TreeNode"/> to another <see cref="TreeNode"/>.
     /// </summary>
-    internal class MoveCommand : Command
+    public class MoveCommand : Command
     {
         /// <summary>
         /// The source.

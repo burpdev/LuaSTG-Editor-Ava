@@ -1,0 +1,136 @@
+name: Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      part:
+        description: "Version part to increment"
+        required: true
+        default: none
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+          - none
+
+permissions:
+  contents: write
+  actions: write
+
+# Version is read from Directory.Build.props (<Version>X.Y.Z</Version>).
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
+      tag: ${{ steps.bump.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Compute bumped version
+        id: bump
+        run: |
+          CUR_V=$(sed -n 's/^[[:space:]]*<Version>\([^<]*\)<\/Version>.*/\1/p' Directory.Build.props | head -1)
+          [[ "$CUR_V" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "error: bad <Version> '$CUR_V' in Directory.Build.props" >&2; exit 1; }
+          IFS=. read -r MA MI PA <<< "$CUR_V"
+          case "${{ inputs.part }}" in
+            major)    MA=$((MA + 1)); MI=0; PA=0 ;;
+            minor)    MI=$((MI + 1)); PA=0 ;;
+            patch)    PA=$((PA + 1)) ;;
+            none)     ;;
+            *) echo "error: unknown part '${{ inputs.part }}'" >&2; exit 1 ;;
+          esac
+          NEW_V="$MA.$MI.$PA"
+          echo "version=$NEW_V" >> "$GITHUB_OUTPUT"
+          echo "tag=$NEW_V" >> "$GITHUB_OUTPUT"
+          echo "part=${{ inputs.part }}: $CUR_V -> $NEW_V"
+
+  build-test:
+    needs: [version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            8.0.x
+      - name: Build
+        run: dotnet build Linux.slnx --nologo -p:Version=${{ needs.version.outputs.version }}
+      - name: Test
+        run: dotnet test Linux.slnx --nologo -p:Version=${{ needs.version.outputs.version }}
+
+  package:
+    needs: [version, build-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            8.0.x
+      - name: Publish GUI (trimmed single-file)
+        run: >
+          dotnet publish LuaSTGEditorAva/LuaSTGEditorAva.csproj
+          -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true
+          -p:Version=${{ needs.version.outputs.version }}
+          -o dist/lstg-linux
+      - name: Publish CLI (trimmed single-file)
+        run: >
+          dotnet publish LstgCli/LstgCli.csproj
+          -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true
+          -p:Version=${{ needs.version.outputs.version }}
+          -o dist/lstg-linux
+      - name: Pack tarball
+        run: >
+          tar -czf luaSTG-editor-ava-linux-x64-${{ needs.version.outputs.version }}.tar.gz
+          -C dist lstg-linux
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: luaSTG-editor-ava-linux-x64-${{ needs.version.outputs.version }}
+          path: luaSTG-editor-ava-linux-x64-${{ needs.version.outputs.version }}.tar.gz
+
+  publish:
+    needs: [version, build-test, package]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Commit version bump (skip if already current)
+        run: |
+          VER="${{ needs.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          sed -i "s|^[[:space:]]*<Version>[^<]*</Version>|    <Version>$VER</Version>|" Directory.Build.props
+          sed -i "s|(Current release: \[[^]]*\]|(Current release: [$VER]|" README.md
+          grep -q "<Version>$VER</Version>" Directory.Build.props || { echo "error: version sed missed Directory.Build.props" >&2; exit 1; }
+          grep -q "(Current release: \[$VER\]" README.md || { echo "error: version sed missed README.md" >&2; exit 1; }
+          if git diff --quiet -- Directory.Build.props README.md; then
+            echo "Already at $VER, nothing to commit"
+          else
+            git diff -- Directory.Build.props README.md
+            git commit -m "Bump version to $VER" -- Directory.Build.props README.md
+            git pull --rebase origin "${{ github.ref_name }}"
+            git push origin "HEAD:${{ github.ref_name }}"
+            echo "Committed $VER"
+          fi
+
+      - name: Push version tag unless it exists
+        run: |
+          TAG="${{ needs.version.outputs.tag }}"
+          git fetch origin "refs/tags/$TAG:refs/tags/$TAG" 2>/dev/null || true
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Tag $TAG already exists, skipping"
+          else
+            git tag -a "$TAG" -m "$TAG"
+            git push origin "refs/tags/$TAG"
+            echo "Pushed tag $TAG"
+          fi

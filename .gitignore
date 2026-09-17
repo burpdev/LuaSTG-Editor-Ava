@@ -265,3 +265,5 @@ __pycache__/
 Setup/
 WiXSetup/
 WixSetupBootstrapper/
+/dist
+/LstgHeadless.Tests

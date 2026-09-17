@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>LstgCli</AssemblyName>
+    <RootNamespace>LstgCli</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <WarningLevel>4</WarningLevel>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
+  <ItemGroup>
+    <TrimmerRootAssembly Include="LuaSTGEditorSharp.Core"/>
+    <TrimmerRootAssembly Include="LuaSTGNode.Legacy"/>
+    <TrimmerRootAssembly Include="LstgHeadless"/>
+    <TrimmerRootAssembly Include="LstgCli"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LuaSTGEditorSharp.Core\LuaSTGEditorSharp.Core.csproj"/>
+    <ProjectReference Include="..\LuaSTGNode.Legacy\LuaSTGNode.Legacy.csproj"/>
+    <ProjectReference Include="..\LstgHeadless\LstgHeadless.csproj"/>
+  </ItemGroup>
+</Project>

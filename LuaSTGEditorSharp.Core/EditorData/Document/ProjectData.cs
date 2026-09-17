@@ -11,7 +11,6 @@ using LuaSTGEditorSharp.EditorData.Compile;
 using LuaSTGEditorSharp.EditorData.Exception;
 using LuaSTGEditorSharp.EditorData.Interfaces;
 
-using System.Windows;
 
 namespace LuaSTGEditorSharp.EditorData.Document
 {
@@ -195,7 +194,7 @@ namespace LuaSTGEditorSharp.EditorData.Document
             }
 
             c.luaSTGFolder = Path.GetDirectoryName(c.luaSTGExePath);
-            c.targetZipPath = c.luaSTGFolder + "\\mod\\" + c.projName + ".zip";
+            c.targetZipPath = Path.Combine(c.luaSTGFolder, "mod", c.projName + ".zip");
             
             foreach (IDocumentWithMeta idwm in referencedDoc)
             {

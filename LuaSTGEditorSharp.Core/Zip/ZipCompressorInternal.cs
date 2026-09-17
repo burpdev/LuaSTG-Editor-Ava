@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ICSharpCode.SharpZipLib.Zip;
+using LuaSTGEditorSharp.Services;
 using Serilog;
 
 namespace LuaSTGEditorSharp.Zip
@@ -33,7 +34,7 @@ namespace LuaSTGEditorSharp.Zip
             catch (Exception e)
             {
                 Logger.Error($"Failed to pack files. Reason:\n{e}");
-                System.Windows.MessageBox.Show($"Packaging failed.\n{e}");
+                EditorAppContext.Dialogs.ShowError($"Packaging failed.\n{e}");
             }
         }
         
@@ -62,7 +63,7 @@ namespace LuaSTGEditorSharp.Zip
             catch (Exception e)
             {
                 Logger.Error($"Packaging failed. Reason:\n{e}");
-                System.Windows.MessageBox.Show($"Packaging failed.\n{e}");
+                EditorAppContext.Dialogs.ShowError($"Packaging failed.\n{e}");
                 yield break;
             }
             foreach (ZipEntry ze in targetArchive)
@@ -112,7 +113,7 @@ namespace LuaSTGEditorSharp.Zip
             }
             catch (Exception e)
             {
-                System.Windows.MessageBox.Show($"Packaging failed.\n{e}");
+                EditorAppContext.Dialogs.ShowError($"Packaging failed.\n{e}");
                 yield break;
             }
             //targetArchiveFS.Close();

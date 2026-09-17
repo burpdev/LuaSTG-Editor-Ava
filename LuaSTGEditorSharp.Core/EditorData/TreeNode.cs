@@ -21,6 +21,7 @@ using LuaSTGEditorSharp.EditorData.Node.General;
 using LuaSTGEditorSharp.EditorData.Node.Project;
 using Newtonsoft.Json;
 using Serilog;
+using LuaSTGEditorSharp.Services;
 
 namespace LuaSTGEditorSharp.EditorData
 {
@@ -1367,12 +1368,13 @@ namespace LuaSTGEditorSharp.EditorData
         {
             while (beg != end)
             {
+                if (beg == null) return false;
                 if (beg.IgnoreValidation) return true;
-                if ((beg.GetType() != typeof(Folder) ||
-                    beg.GetType() != typeof(FolderRed) ||
-                    beg.GetType() != typeof(FolderGreen) ||
-                    beg.GetType() != typeof(FolderBlue) ||
-                    beg.GetType() != typeof(FolderYellow)) && beg.GetType() != typeof(RootFolder) && beg.GetType() != typeof(ProjectRoot)) return false;
+                if (beg.GetType() != typeof(Folder) &&
+                    beg.GetType() != typeof(FolderRed) &&
+                    beg.GetType() != typeof(FolderGreen) &&
+                    beg.GetType() != typeof(FolderBlue) &&
+                    beg.GetType() != typeof(FolderYellow) && beg.GetType() != typeof(RootFolder) && beg.GetType() != typeof(ProjectRoot)) return false;
                 beg = beg.Parent;
             }
             return true;
@@ -1394,6 +1396,7 @@ namespace LuaSTGEditorSharp.EditorData
             List<Type[]> toRemove = new List<Type[]>();
             while (Beg1 != End1)
             {
+                if (Beg1 == null) break;
                 if (Beg1.IgnoreValidation) return true;
                 foreach (Type[] t1 in ts)
                 {
@@ -1423,6 +1426,7 @@ namespace LuaSTGEditorSharp.EditorData
             }
             while (Beg2 != End2)
             {
+                if (Beg2 == null) break;
                 if (Beg2.IgnoreValidation) return true;
                 foreach (Type[] t1 in ts)
                 {
@@ -1565,7 +1569,7 @@ namespace LuaSTGEditorSharp.EditorData
         /// <returns><see cref="string"/> after applying archive space and lua escape sequences.</returns>
         protected string GetPath(int pathAttrID)
         {
-            if ((System.Windows.Application.Current as IAppSettings).BatchPacking) return Path.GetFileName(NonMacrolize(pathAttrID));
+            if (EditorAppContext.BatchPacking) return Path.GetFileName(NonMacrolize(pathAttrID));
             string s = parentWorkSpace.CompileProcess.archiveSpace;
             if (s != "")
             {
@@ -1591,7 +1595,7 @@ namespace LuaSTGEditorSharp.EditorData
 
         protected string GetRawPath(int pathAttrID)
         {
-            if ((System.Windows.Application.Current as IAppSettings).BatchPacking) return Path.GetFileName(NonMacrolize(pathAttrID));
+            if (EditorAppContext.BatchPacking) return Path.GetFileName(NonMacrolize(pathAttrID));
             return Lua.StringParser.ParseLua(Path.GetFileName(NonMacrolize(pathAttrID)));
         }
 

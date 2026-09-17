@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using LuaSTGEditorSharp.Toolbox;
 using LuaSTGEditorSharp.EditorData;
 using LuaSTGEditorSharp.EditorData.Node.General;
@@ -159,35 +158,6 @@ namespace LuaSTGEditorSharp.Plugin
                 }
             }
             nodeNameList.Sort((a, b) => { return a.Name.CompareTo(b.Name); });
-        }
-
-        public IEnumerable<KeyValuePair<string,BitmapImage>> GetToolBoxImageResources()
-        {
-            foreach(KeyValuePair<string, Dictionary<ToolboxItemData, AddNode>> kvp in ToolInfo)
-            {
-                foreach(KeyValuePair<ToolboxItemData, AddNode> kvp2 in kvp.Value)
-                {
-                    if (!kvp2.Key.IsSeperator)
-                    {
-                        string s = kvp2.Key.Image;
-                        yield return new KeyValuePair<string, BitmapImage>(s, new BitmapImage(new Uri(s, UriKind.RelativeOrAbsolute)));
-                    }
-                }
-            }
-            foreach (KeyValuePair<string, Dictionary<ToolboxItemData, AddCustomNode>> kvp in ToolInfoCustom)
-            {
-                foreach (KeyValuePair<ToolboxItemData, AddCustomNode> kvp2 in kvp.Value)
-                {
-                    if (!kvp2.Key.IsSeperator)
-                    {
-                        string s = kvp2.Key.Image;
-                        BitmapImage img = new BitmapImage(new Uri("/LuaSTGEditorSharp.Core;component/images/"+s, UriKind.RelativeOrAbsolute));
-                        if (img == null)
-                            img = new BitmapImage(new Uri("/LuaSTGNode.Legacy;component/images/"+s, UriKind.RelativeOrAbsolute));
-                        yield return new KeyValuePair<string, BitmapImage>(s, img);
-                    }
-                }
-            }
         }
 
         #region general

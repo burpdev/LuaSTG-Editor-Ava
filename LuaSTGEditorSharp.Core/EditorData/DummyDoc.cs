@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using LuaSTGEditorSharp.Services;
 using Newtonsoft.Json;
 
 namespace LuaSTGEditorSharp.EditorData
@@ -26,9 +26,8 @@ namespace LuaSTGEditorSharp.EditorData
             }
             catch (JsonException e)
             {
-                MessageBox.Show("Failed to open document. Please check whether the targeted file is in current version.\n"
-                    + e.ToString()
-                    , "LuaSTG Editor Sharp X", MessageBoxButton.OK, MessageBoxImage.Error);
+                EditorAppContext.Dialogs.ShowError("Failed to open document. Please check whether the targeted file is in current version.\n"
+                    + e.ToString());
             }
         }
     }

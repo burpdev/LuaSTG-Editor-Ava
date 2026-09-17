@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="LuaSTGEditorAva.Dialogs.DefinitionsDialog"
+        Title="Definitions"
+        Width="760" Height="540"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True">
+  <DockPanel Margin="12">
+    <Button DockPanel.Dock="Bottom" Name="CloseBtn" Content="Close"
+            HorizontalAlignment="Right" Margin="0,8,0,0" MinWidth="90" />
+    <Grid ColumnDefinitions="*,*">
+      <TreeView Grid.Column="0" Name="DefTree" Margin="0,0,4,0">
+        <TreeView.ItemTemplate>
+          <TreeDataTemplate ItemsSource="{Binding Children}">
+            <TextBlock Text="{Binding Text}" />
+          </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+      </TreeView>
+      <TextBox Grid.Column="1" Name="DefDetails" Margin="4,0,0,0"
+               IsReadOnly="True" AcceptsReturn="True"
+               FontFamily="DejaVu Sans Mono,Consolas,monospace" />
+    </Grid>
+  </DockPanel>
+</Window>

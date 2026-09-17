@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-lstges">
+    <comment>LuaSTG Editor project</comment>
+    <glob pattern="*.lstges"/>
+  </mime-type>
+  <mime-type type="application/x-lstgproj">
+    <comment>LuaSTG Editor multi-file project</comment>
+    <glob pattern="*.lstgproj"/>
+  </mime-type>
+</mime-info>

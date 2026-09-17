@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=LuaSTG Editor Ava
+GenericName=LuaSTG Engine Editor
+Comment=Node-based code generator for the LuaSTG engine
+Exec=/opt/lstg-editor/LuaSTGEditorAva %F
+Icon=lstg-editor-sharp-x
+Terminal=false
+Categories=Development;Game;
+MimeType=application/x-lstges;application/x-lstgproj;
+StartupWMClass=LuaSTGEditorAva

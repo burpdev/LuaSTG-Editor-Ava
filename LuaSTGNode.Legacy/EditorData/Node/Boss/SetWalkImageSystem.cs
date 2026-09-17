@@ -78,7 +78,7 @@ namespace LuaSTGEditorSharp.EditorData.Node.Boss
 
         public static string InverseFromColRow(string source)
         {
-            return string.Join(",", source.Split(',').Reverse());
+            return string.Join(",", Enumerable.Reverse(source.Split(',')).ToArray());
         }
 
         public override IEnumerable<string> ToLua(int spacing)

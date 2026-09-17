@@ -168,7 +168,7 @@ namespace LuaSTGEditorSharp.EditorData.Document
 
             if (parentProj == null)
             {
-                c.targetZipPath = c.luaSTGFolder + "\\mod\\" + c.projName + ".zip";
+                c.targetZipPath = Path.Combine(c.luaSTGFolder, "mod", c.projName + ".zip");
             }
             else
             {

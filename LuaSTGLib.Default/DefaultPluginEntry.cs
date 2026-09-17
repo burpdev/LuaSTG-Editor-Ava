@@ -30,7 +30,7 @@ namespace LuaSTGEditorSharp.Plugin.Default
 
         public override IInputWindowSelectorRegister GetInputWindowSelectorRegister()
         {
-            return new DefaultInputWindowSelectorRegister();
+            return null;
         }
 
         public override AbstractMetaData GetMetaData()
@@ -50,7 +50,7 @@ namespace LuaSTGEditorSharp.Plugin.Default
 
         public override IViewDefinition GetViewDefinitionWindow(DocumentData document)
         {
-            return new DefaultViewDefinition(document);
+            return null;
         }
     }
 }

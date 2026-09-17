@@ -1,0 +1,15 @@
+<Solution>
+  <Project Path="LuaSTGEditorSharp.Core/LuaSTGEditorSharp.Core.csproj" />
+  <Project Path="LuaSTGNode.Legacy/LuaSTGNode.Legacy.csproj" />
+  <Project Path="LuaSTGLib.Default/LuaSTGLib.Default.csproj" />
+  <Project Path="LuaSTGPlusLib/LuaSTGPlusLib.csproj" />
+  <Project Path="LuaSTGSubLib/LuaSTGSubLib.csproj" />
+  <Project Path="LuaSTGEvoLib/LuaSTGEvoLib.csproj" />
+  <Project Path="LuaSTGFluxLib/LuaSTGFluxLib.csproj" />
+  <Project Path="LuaSTGXLib.Legacy/LuaSTGXLib.Legacy.csproj" />
+  <Project Path="DanmakuRandomizer/DanmakuRandomizer.csproj" />
+  <Project Path="LstgCli/LstgCli.csproj" />
+  <Project Path="LstgHeadless/LstgHeadless.csproj" />
+  <Project Path="LuaSTGEditorAva/LuaSTGEditorAva.csproj" />
+  <Project Path="LstgHeadless.Tests/LstgHeadless.Tests.csproj" />
+</Solution>

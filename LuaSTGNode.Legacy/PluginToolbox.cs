@@ -19,8 +19,6 @@ using LuaSTGEditorSharp.EditorData.Node.Graphics;
 using LuaSTGEditorSharp.EditorData.Node.Audio;
 using LuaSTGEditorSharp.EditorData.Node.Render;
 using LuaSTGEditorSharp.EditorData.Node.Advanced;
-using System.Windows;
-using System.Windows.Resources;
 using System.IO;
 using MoonSharp.Interpreter;
 using LuaSTGEditorSharp.CustomNodes;
