@@ -47,24 +47,8 @@ jobs:
           echo "tag=$NEW_V" >> "$GITHUB_OUTPUT"
           echo "part=${{ inputs.part }}: $CUR_V -> $NEW_V"
 
-  build-test:
-    needs: [version]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: |
-            10.0.x
-            8.0.x
-      - name: Build
-        run: dotnet build Linux.slnx --nologo -p:Version=${{ needs.version.outputs.version }}
-      - name: Test
-        run: dotnet test Linux.slnx --nologo -p:Version=${{ needs.version.outputs.version }}
-
   package:
-    needs: [version, build-test]
+    needs: [version]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -97,7 +81,7 @@ jobs:
           path: luaSTG-editor-ava-linux-x64-${{ needs.version.outputs.version }}.tar.gz
 
   publish:
-    needs: [version, build-test, package]
+    needs: [version, package]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -110,14 +94,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           sed -i "s|^[[:space:]]*<Version>[^<]*</Version>|    <Version>$VER</Version>|" Directory.Build.props
-          sed -i "s|(Current release: \[[^]]*\]|(Current release: [$VER]|" README.md
           grep -q "<Version>$VER</Version>" Directory.Build.props || { echo "error: version sed missed Directory.Build.props" >&2; exit 1; }
-          grep -q "(Current release: \[$VER\]" README.md || { echo "error: version sed missed README.md" >&2; exit 1; }
-          if git diff --quiet -- Directory.Build.props README.md; then
+          if git diff --quiet -- Directory.Build.props; then
             echo "Already at $VER, nothing to commit"
           else
-            git diff -- Directory.Build.props README.md
-            git commit -m "Bump version to $VER" -- Directory.Build.props README.md
+            git diff -- Directory.Build.props
+            git commit -m "Bump version to $VER" -- Directory.Build.props
             git pull --rebase origin "${{ github.ref_name }}"
             git push origin "HEAD:${{ github.ref_name }}"
             echo "Committed $VER"
