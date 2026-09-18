@@ -11,5 +11,4 @@
   <Project Path="LstgCli/LstgCli.csproj" />
   <Project Path="LstgHeadless/LstgHeadless.csproj" />
   <Project Path="LuaSTGEditorAva/LuaSTGEditorAva.csproj" />
-  <Project Path="LstgHeadless.Tests/LstgHeadless.Tests.csproj" />
 </Solution>
