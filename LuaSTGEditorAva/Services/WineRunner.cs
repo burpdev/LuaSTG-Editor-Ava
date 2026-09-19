@@ -506,10 +506,10 @@ namespace LuaSTGEditorAva.Services
         public static string BuildParameter(LinuxSettings settings, string modName)
         {
             string Bool(bool b) => b.ToString().ToLowerInvariant();
-            return "\"start_game=true is_debug=true setting.nosplash=true setting.windowed=" +
+            return "start_game=true is_debug=true setting.nosplash=true setting.windowed=" +
                 Bool(settings.DebugWindowed) + " setting.resx=" + settings.DebugResolutionX +
                 " setting.resy=" + settings.DebugResolutionY + " cheat=" + Bool(settings.DebugCheat) +
-                " updatelib=" + Bool(settings.DebugUpdateLib) + " setting.mod='" + modName + "'\"";
+                " updatelib=" + Bool(settings.DebugUpdateLib) + " setting.mod='" + modName + "'";
         }
 
         private static ProcessStartInfo ProtonStartInfo(string protonDir, string engineExe)
