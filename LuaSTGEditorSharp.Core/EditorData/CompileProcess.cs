@@ -198,10 +198,12 @@ namespace LuaSTGEditorSharp.EditorData
         /// </summary>
         protected void WriteRoot()
         {
-            using FileStream s = new(rootLuaPath, FileMode.Create, FileAccess.Write);
-            using StreamWriter sw = new(s, Encoding.UTF8);
+            FileStream s = null;
+            StreamWriter sw = null;
             try
             {
+                s = new FileStream(rootLuaPath, FileMode.Create, FileAccess.Write);
+                sw = new StreamWriter(s, Encoding.UTF8);
                 sw.Write(rootCode);
                 Logger.Information("Root file written.");
             }
@@ -209,6 +211,11 @@ namespace LuaSTGEditorSharp.EditorData
             {
                 Logger.Error($"Failed to write root file.", ex);
                 EditorAppContext.Dialogs.ShowError(ex.ToString());
+            }
+            finally
+            {
+                sw?.Close();
+                s?.Close();
             }
         }
 

@@ -15,13 +15,11 @@ namespace LuaSTGEditorAva.Input
         private static readonly Dictionary<string, string[]> comboBox = new Dictionary<string, string[]>();
         private static readonly Dictionary<string, Func<AttrItem, string, IInputWindow>> windowGenerator =
             new Dictionary<string, Func<AttrItem, string, IInputWindow>>();
-        private static readonly Dictionary<string, string[]> overrides = new Dictionary<string, string[]>();
 
         public static void Register(IInputWindowSelectorRegister register)
         {
             register.RegisterComboBoxText(comboBox);
             register.RegisterInputWindow(windowGenerator);
-            register.RegisterOverrides(overrides);
         }
 
         public static void AfterRegister()

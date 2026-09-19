@@ -185,9 +185,5 @@ namespace LuaSTGEditorAva.Input
             target.Add("richtexthalign", (src, tar) => Combo(src, tar, "richtexthalign", "Input Horizontal Alignment"));
             target.Add("richtextvalign", (src, tar) => Combo(src, tar, "richtextvalign", "Input Vertical Alignment"));
         }
-
-        public void RegisterOverrides(Dictionary<string, string[]> overrides)
-        {
-        }
     }
 }
