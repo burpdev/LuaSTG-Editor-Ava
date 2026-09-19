@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <Version>0.78.4</Version>
+    <Version>0.78.3</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>none</DebugType>
